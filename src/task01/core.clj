@@ -3,12 +3,14 @@
   (:gen-class))
 
 (defn visit [links [tag attrs & chlds]]
-  (defn find-links [elements]
-    (map #(:href (nth % 1)) (filter #(= (nth % 0) :a) elements)))
-
-  (if (= (:class attrs) "r")
-    (concat links (find-links chlds))
-    (reduce visit links (filter coll? chlds))))
+  (letfn [(link? [[ tag & _ ]] (= tag :a))
+          (get-href [[ _ attrs & _ ]] (:href attrs))
+          (find-links [ elements ]
+            (map get-href (filter link? elements)))]
+    
+    (if (= (:class attrs) "r")
+      (concat links (find-links chlds))
+      (reduce visit links (filter coll? chlds)))))
 
 (defn get-links []
 " 1) Find all elements containing {:class \"r\"}.
